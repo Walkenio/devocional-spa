@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devocionais Diários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans leading-normal tracking-normal">
+    <div x-data="{ activeTab: 'devocional', menuOpen: false }" class="flex flex-col min-h-screen">
+        <header class="bg-white shadow">
+            <div class="container mx-auto p-4">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-indigo-600">Devocionais Diários</h1>
+                    <button @click="menuOpen = !menuOpen" class="md:hidden focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="flex-col md:flex hidden" :class="{ 'flex': menuOpen, 'hidden': !menuOpen }">
+                    <ul class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mt-4 md:mt-0">
+                        <li>
+                            <button @click="activeTab = 'devocional'; menuOpen = false" class="px-4 py-2 rounded-lg transition duration-300 w-full text-left" :class="{ 'bg-indigo-600 text-white': activeTab === 'devocional', 'bg-gray-200 text-gray-800 hover:bg-indigo-100': activeTab !== 'devocional' }">
+                                Último Devocional
+                            </button>
+                        </li>
+                        <li>
+                            <button @click="activeTab = 'autor'; menuOpen = false" class="px-4 py-2 rounded-lg transition duration-300 w-full text-left" :class="{ 'bg-indigo-600 text-white': activeTab === 'autor', 'bg-gray-200 text-gray-800 hover:bg-indigo-100': activeTab !== 'autor' }">
+                                Sobre o Autor
+                            </button>
+                        </li>
+                        <li>
+                            <button @click="activeTab = 'contato'; menuOpen = false" class="px-4 py-2 rounded-lg transition duration-300 w-full text-left" :class="{ 'bg-indigo-600 text-white': activeTab === 'contato', 'bg-gray-200 text-gray-800 hover:bg-indigo-100': activeTab !== 'contato' }">
+                                Contato
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="flex-grow container mx-auto p-4">
+            <div x-show="activeTab === 'devocional'" class="fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-indigo-600">Último Devocional</h2>
+                <article class="bg-white p-6 rounded-lg shadow-lg">
+                    <img src="https://picsum.photos/1200/400" alt="Natureza" class="w-full h-64 object-cover rounded-t-lg mb-4">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Título do Devocional</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.
+                    </p>
+                </article>
+            </div>
+
+            <div x-show="activeTab === 'autor'" class="fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-indigo-600">Sobre o Autor</h2>
+                <article class="bg-white p-6 rounded-lg shadow-lg">
+                    <img src="https://picsum.photos/300/300" alt="Autor" class="w-32 h-32 object-cover rounded-full mx-auto mb-4">
+                    <h3 class="text-2xl font-bold mb-4 text-center text-gray-800">Nome do Autor</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Proin iaculis purus consequat sem cure digni ssim. Donec entum lacus celis euismod quis eget sem. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.
+                    </p>
+                </article>
+            </div>
+
+            <div x-show="activeTab === 'contato'" class="fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-indigo-600">Contato</h2>
+                <form class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="nome">
+                            Nome
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="nome" type="text" placeholder="Seu nome">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                            Email
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="email" type="email" placeholder="Seu email">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="mensagem">
+                            Mensagem
+                        </label>
+                        <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500" id="mensagem" placeholder="Sua mensagem" rows="4"></textarea>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300" type="button">
+                            Enviar Mensagem
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <footer class="bg-white shadow mt-auto">
+            <div class="container mx-auto p-4 text-center text-gray-600">
+                <p>© 2023 Devocionais Diários. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</body>
+</html>
