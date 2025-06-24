@@ -6,9 +6,11 @@
     <title>Blog - Pr. Jutson Mark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 </head>
 <body class="bg-gray-50 font-sans leading-normal tracking-normal">
-    <div x-data="{ activeTab: 'devocional', menuOpen: false }" class="flex flex-col min-h-screen">
+    <div x-data="appDevocional" class="flex flex-col min-h-screen">
         <header class="bg-white shadow">
             <div class="container mx-auto p-4">
                 <div class=" flex justify-between items-center">
@@ -62,13 +64,26 @@
 
         <main class="flex-grow container mx-auto p-4">
              <div x-show="activeTab === 'devocional'" class="fade-in">
-                <article class="bg-white p-6 rounded-lg shadow-lg">
-                    <img src="https://picsum.photos/1200/400" alt="Natureza" class="w-full h-64 object-cover rounded-t-lg mb-4">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Título do Devocional</h3>
-                    <p class="text-gray-700 leading-relaxed">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.
-                    </p>
-                </article>
+                <div class="w-full flex mb-8">
+                    <button
+                        type="button"
+                        @click.stop.prevent="inverterOrdem = !inverterOrdem"
+                        class="bg-gray-200 hover:bg-gray-300 p-1 px-2 rounded border border-gray-500"
+                    > <span x-text="inverterOrdem ? 'Ver antigos primeiro' : 'Ver últimos primeiro'"></span> </button>
+                </div>
+
+                <div class="flex w-full flex-col gap-5 justify-center items-center">
+                    <template x-for="(devocional, index) in devocionais" :key="index">
+                    <article class="bg-white p-6 rounded-lg shadow-lg">
+                        <img x-bind:src="devocional?.imagem" alt="Natureza" class="w-full h-64 object-cover rounded-t-lg mb-4">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800" x-text="devocional?.titulo"></h3>
+                        <div
+                            class="text-gray-700 leading-relaxed"
+                            x-html="marked.parse(devocional?.conteudoMarkdown || '')"
+                        ></div>
+                    </article>
+                </template>
+                </div>
             </div>
 
             <div x-show="activeTab === 'frases que marcaram'" class="fade-in">
@@ -181,5 +196,79 @@
             to { opacity: 1; }
         }
     </style>
+
+
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('appDevocional', () => ({
+            activeTab: 'devocional',
+            menuOpen: false,
+            somentePublicados: true,
+            inverterOrdem: true,
+            devocionalData: [],
+            get allDevocionais() {
+                let _items = this?.devocionalData?.rows || [];
+
+                _items = (Array.isArray(_items) ? _items : []).map(i => {
+                    i.conteudo = i?.conteudo || '';
+
+                    return {
+                        ...i,
+                        conteudoHtml: `${i?.conteudo}`.split(`\r\n`)?.map(i2 => {
+                            return `${i2}`;
+                        }),
+                        conteudoMarkdown: `${i?.conteudo}`.split(`\r\n`)?.map(i2 => {
+                            return `${i2}`
+                            .replaceAll('----', `---`)
+                            .replaceAll('-----', `---`)
+                            .replaceAll('---', `\n`)
+                            .replaceAll(`\r\n`, `\n`)
+                            .replaceAll(`\r`, `\n`)
+                            .replaceAll('<br>', `\n`)
+                            .replaceAll('<br/>', `\n`)
+                            .replaceAll('<br />', `\n`)
+                            ;
+                        })?.join(`\n`),
+                    }
+                });
+
+                return _items;
+            },
+            get devocionais() {
+                let _items = this.allDevocionais;
+
+                if (this.inverterOrdem) {
+                    _items = _items.reverse();
+                }
+
+                if (!this.somentePublicados) {
+                    return _items;
+                }
+
+                return _items?.filter(i => i?.publicado === 'sim');
+            },
+            async fetchDevocionalData() {
+                const res = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vSkEMvFPbBwIFdrCXc_DsdhlFAQgmtgP46xxPAShZpAbJONUK_oBSXcqBrykybTWhddHGkZ05V-WL5o/pub?gid=0&single=true&output=tsv');
+                let data = await res.text();
+                let rows = data.split(`\r\n`).map(i => `${i}`?.split(`\t`)) || [];
+                let headers = rows[0];
+                let newRows = rows.slice(1).map( i => {
+                    i = i.map((v, k) => {
+                        let key = headers[k] ?? k;
+
+                        return [key, v];
+                    });
+
+                    return Object.fromEntries(i);
+                });
+
+                return {headers, rows: newRows, rawData: data};
+            },
+            async init() {
+                this.devocionalData = await this.fetchDevocionalData();
+            },
+        }))
+    })
+</script>
 </body>
 </html>
